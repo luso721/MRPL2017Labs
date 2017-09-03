@@ -27,33 +27,72 @@ end
 %Robot will run last action in loop for an extra second, so forcibly stop
 %it.
 robot.stop();
-  
-%% Task 2: Simulation   
 
-left_start = 6934;
-right_start = 4396;
+%% Task 2,3,4 
+robot = raspbot();
 
-%Since encoder readings are in mm, one "tick" of the encoder is 1mm
+%robot.sendVelocity(0, 0);
 
-start_time = tic; 
-final_dist = 304.8; % in mm
-ticks_per_cm = 10;
+leftStart = robot.encoders.LatestMessage.Vector.Y;
+rghtStart = robot.encoders.LatestMessage.Vector.X;
+%leftStart = rand*1000;
+%rghtStart = rand*1000;
+leftEncoder = leftStart;
+rghtEncoder = rghtStart;
+signedDistance = 0;
 
-while(true)
-    left_encoder = 6934 + 5*10; 
-    right_encoder = 4398 + 5*10;
-    signed_distance = ((left_encoder - left_start))/1000 + ((right_encoder-right_start))/1000;
-    signed_distance = signed_distance/2;
-    if (signed_distance >= final_dist) 
-        break
-    end
-    pause(0.001);
-    
+timeArray = zeros(1, 1);
+leftArray = zeros(1, 1);
+rghtArray = zeros(1, 1);
+realLeft = zeros(1, 1);
+realRght = zeros(1, 1);
+v = 50;
+dt = 0.05;
+
+i = 2;
+tic;
+ptoc = toc;
+totalDistance = 0;
+while (signedDistance < 304.8)
+    robot.sendVelocity(v/1000, v/1000);
+    pause(dt); 
+    ctoc = toc;
+    leftEncoder = leftEncoder + v*(ctoc-ptoc); %robot.encoders.LatestMessage.Vector.Y;
+    rghtEncoder = rghtEncoder + v*(ctoc-ptoc); %robot.encoders.LatestMessage.Vector.X;
+    leftArray(i) = leftEncoder - leftStart;
+    rghtArray(i) = rghtEncoder - rghtStart;
+    timeArray(i) = toc;
+    %leftEncoder = v*toc;
+    %rghtEncoder = v*toc;
+    realLeft(i) = (robot.encoders.LatestMessage.Vector.Y - leftStart)*1000;
+	realRght(i) = (robot.encoders.LatestMessage.Vector.X - rghtStart)*1000;
+    signedDistance = mean([realLeft(i), realRght(i)]); %mean([leftEncoder, rghtEncoder]);
+    %plot(timeArray, leftArray, timeArray, rghtArray, timeArray, realLeft, timeArray, realRght);
+    plot(timeArray, realLeft, timeArray, realRght)
+    ptoc = ctoc;
+    i = i + 1; 
 end
 
+v = -1 * v;
 
+while (signedDistance >= 0)
+    robot.sendVelocity(v/1000, v/1000);
+    pause(dt); 
+    ctoc = toc;
+    leftEncoder = leftEncoder + v*(ctoc-ptoc); %robot.encoders.LatestMessage.Vector.Y;
+    rghtEncoder = rghtEncoder + v*(ctoc-ptoc); %robot.encoders.LatestMessage.Vector.X;
+    leftArray(i) = leftEncoder - leftStart;
+    rghtArray(i) = rghtEncoder - rghtStart;
+    timeArray(i) = toc;
+    %leftEncoder = v*toc;
+    %rghtEncoder = v*toc;
+    realLeft(i) = (robot.encoders.LatestMessage.Vector.Y - leftStart)*1000;
+	realRght(i) = (robot.encoders.LatestMessage.Vector.X - rghtStart)*1000;
+    signedDistance = mean([realLeft(i), realRght(i)]); %mean([leftEncoder, rghtEncoder]);
+    %plot(timeArray, leftArray, timeArray, rghtArray, timeArray, realLeft, timeArray, realRght);
+    plot(timeArray, realLeft, timeArray, realRght)
+    ptoc = ctoc;
+    i = i + 1; 
+end
 
-
-
-
-%% Task 4: Basic Plotting and Real Time Plotting
+robot.stop();
