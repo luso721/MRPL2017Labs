@@ -29,6 +29,9 @@ end
 robot.stop();
 
 %% Task 2,3,4 
+clear all;
+close all; 
+clc; 
 robot = raspbot();
 
 figure('Name', 'Robot Encoder Movements');
@@ -40,8 +43,6 @@ title('Robot Encoder Readings');
 
 leftStart = robot.encoders.LatestMessage.Vector.Y;
 rghtStart = robot.encoders.LatestMessage.Vector.X;
-%leftStart = rand*1000;
-%rghtStart = rand*1000;
 leftEncoder = leftStart;
 rghtEncoder = rghtStart;
 signedDistance = 0;
@@ -84,8 +85,9 @@ end
 robot.stop();
 pause(1);
 v = -1 * v;
+signedDistance = 20;
 
-while (signedDistance >= 0)
+while (signedDistance > 0)
     robot.sendVelocity(v/1000, v/1000);
     pause(dt); 
     ctoc = toc;
@@ -105,6 +107,5 @@ while (signedDistance >= 0)
     ptoc = ctoc;
     i = i + 1; 
 end
-
-legend('Left Encoder', 'Right Encoder');
 robot.stop();
+legend('Left Encoder', 'Right Encoder');
