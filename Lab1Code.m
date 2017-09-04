@@ -31,6 +31,11 @@ robot.stop();
 %% Task 2,3,4 
 robot = raspbot();
 
+figure('Name', 'Robot Encoder Movements');
+hold on;
+xlabel('Time (s)');
+ylabel('Distance Traveled (cm)');
+title('Robot Encoder Readings');
 %robot.sendVelocity(0, 0);
 
 leftStart = robot.encoders.LatestMessage.Vector.Y;
@@ -53,7 +58,9 @@ i = 2;
 tic;
 ptoc = toc;
 totalDistance = 0;
-while (signedDistance < 304.8)
+
+
+while (signedDistance < 30.48)
     robot.sendVelocity(v/1000, v/1000);
     pause(dt); 
     ctoc = toc;
@@ -64,15 +71,18 @@ while (signedDistance < 304.8)
     timeArray(i) = toc;
     %leftEncoder = v*toc;
     %rghtEncoder = v*toc;
-    realLeft(i) = (robot.encoders.LatestMessage.Vector.Y - leftStart)*1000;
-	realRght(i) = (robot.encoders.LatestMessage.Vector.X - rghtStart)*1000;
+    realLeft(i) = (robot.encoders.LatestMessage.Vector.Y - leftStart)*100;
+	realRght(i) = (robot.encoders.LatestMessage.Vector.X - rghtStart)*100;
     signedDistance = mean([realLeft(i), realRght(i)]); %mean([leftEncoder, rghtEncoder]);
     %plot(timeArray, leftArray, timeArray, rghtArray, timeArray, realLeft, timeArray, realRght);
+    hold on;
     plot(timeArray, realLeft, timeArray, realRght)
     ptoc = ctoc;
     i = i + 1; 
 end
 
+robot.stop();
+pause(1);
 v = -1 * v;
 
 while (signedDistance >= 0)
@@ -86,13 +96,15 @@ while (signedDistance >= 0)
     timeArray(i) = toc;
     %leftEncoder = v*toc;
     %rghtEncoder = v*toc;
-    realLeft(i) = (robot.encoders.LatestMessage.Vector.Y - leftStart)*1000;
-	realRght(i) = (robot.encoders.LatestMessage.Vector.X - rghtStart)*1000;
+    realLeft(i) = (robot.encoders.LatestMessage.Vector.Y - leftStart)*100;
+	realRght(i) = (robot.encoders.LatestMessage.Vector.X - rghtStart)*100;
     signedDistance = mean([realLeft(i), realRght(i)]); %mean([leftEncoder, rghtEncoder]);
     %plot(timeArray, leftArray, timeArray, rghtArray, timeArray, realLeft, timeArray, realRght);
+    hold on;
     plot(timeArray, realLeft, timeArray, realRght)
     ptoc = ctoc;
     i = i + 1; 
 end
 
+legend('Left Encoder', 'Right Encoder');
 robot.stop();
