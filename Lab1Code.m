@@ -57,10 +57,10 @@ dt = 0.05;
 i = 2;
 tic;
 ptoc = toc;
-totalDistance = 0;
+travelDistance = 20; %cm
 
 
-while (signedDistance < 30.48)
+while (signedDistance < travelDistance)
     robot.sendVelocity(v/1000, v/1000);
     pause(dt); 
     ctoc = toc;
