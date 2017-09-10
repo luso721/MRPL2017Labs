@@ -15,8 +15,10 @@ maxBearing = pi/2;
 
 figure(1)
 
+duration = .9; 
+
 while(true)
-  pause(1);
+  pause(duration);
   ranges = robot.laser.LatestMessage.Ranges;
   
   for i = 1:360
@@ -26,12 +28,15 @@ while(true)
       bearings(i) = th;
   end
   
-  minR = 100; %minimum radial distance
+  minR = 1000; %minimum radial distance. Initially set to very large value
+  mindx = 0; 
+  mindy = 0;
   
   for j = 1:360
       xVal = xVals(j);
       yVal = yVals(j);
       br = bearings(j);
+      %use Pythagorean Theorem to calculate the nearest distance in METERS
       r = sqrt(xVal^2 + yVal^2);
       if ((r > minObjectRange) && (r < maxObjectRange) ...
           && (abs(br) < maxBearing) && r < minR)
@@ -41,24 +46,21 @@ while(true)
       end
   end
   
-  %use Pythagorean Theorem to calculate the nearest distance in METERS
   disp(minR) 
   %plot(xVals, yVals, '*');
   plot([0 mindx], [0 mindy], '-r*');
   axis([-1, 1, -1, 1]);
   
   %Distance servo part
+  W = .08;
+  velocity = minR - idealObjectRange;
+  kappa = mindy/minR^2;
+  w = kappa*velocity;
+  v_left = velocity + (W/2)*w;
+  v_right = velocity - (W/2)*w;
   
-  objectposX = mindx;
-  objectposY = mindy;
-  
-  %if (minR < idealObjectRange)
-  %    backVelocity = objectRange - idealObjectRange;
-  %end
-  
-  
-  
-  
+  robot.sendVelocity(v_right, v_left);
+   
 end
 
 
