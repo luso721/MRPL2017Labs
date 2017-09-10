@@ -15,7 +15,11 @@ maxBearing = pi/2;
 
 figure(1)
 
+<<<<<<< HEAD
+duration = 1; 
+=======
 duration = .9; 
+>>>>>>> 520a83a50ca31b3721d9ff6bbc70e636f7cb39b2
 
 while(true)
   pause(duration);
@@ -31,6 +35,10 @@ while(true)
   minR = 1000; %minimum radial distance. Initially set to very large value
   mindx = 0; 
   mindy = 0;
+<<<<<<< HEAD
+  mindth = 0;
+=======
+>>>>>>> 520a83a50ca31b3721d9ff6bbc70e636f7cb39b2
   
   for j = 1:360
       xVal = xVals(j);
@@ -43,6 +51,34 @@ while(true)
           minR = r;
           mindx = xVal;
           mindy = yVal;
+<<<<<<< HEAD
+          mindth = br;
+      end
+  end
+  
+  %disp(minR) 
+  %plot(xVals, yVals, '*');
+  plot(-mindy, mindx, 'X');
+  axis([-2, 2, -2, 2]);
+  title('Location of Nearest Object');
+  ylabel('Distance in Front of Robot (m)');
+  xlabel('Distance to Side of Robot (m)');
+  
+  %Distance servo part
+  W = .08;
+  Kp = 4.2;
+  stillTurn = 0.2;
+  velocity = minR - idealObjectRange;
+  if (abs(velocity) < 0.01)
+      velocity = 0;
+  end
+  kappa = Kp*mindth;
+  w = kappa*max([stillTurn, velocity]);
+  v_left = velocity + (W/2)*w;
+  v_right = velocity - (W/2)*w;
+  
+  robot.sendVelocity(v_left, v_right);
+=======
       end
   end
   
@@ -60,6 +96,7 @@ while(true)
   v_right = velocity - (W/2)*w;
   
   robot.sendVelocity(v_right, v_left);
+>>>>>>> 520a83a50ca31b3721d9ff6bbc70e636f7cb39b2
    
 end
 
