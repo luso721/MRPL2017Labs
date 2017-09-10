@@ -58,7 +58,7 @@ dt = 0.05;
 i = 2;
 tic;
 ptoc = toc;
-travelDistance = 20; %cm
+travelDistance = 30.4; %cm
 
 
 while (signedDistance < travelDistance)
