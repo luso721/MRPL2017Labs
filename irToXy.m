@@ -1,10 +1,12 @@
-function [ x, y,th] = irToXy( i, r )
+function [x,y,th] = irToXy( i, r )
   
   if (r < .06)
       r = 0;
   end
   
-  th = i + 4;
+  offset = 4; 
+  th = i + offset;
+
   th = th*pi/180;
   
   if (th > pi)
