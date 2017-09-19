@@ -1,10 +1,5 @@
 function [x, y, th] = modelDiffSteerRobot(vl, vr, t0, tf, dt)
     
-    vl = vl / 1000;
-    vr = vr / 1000;
-    
-    t = t0:dt:tf;
-    
     W = 0.08;
     V = (vr + vl) / 2;
     w = (vr - vl) / W;
@@ -18,10 +13,9 @@ function [x, y, th] = modelDiffSteerRobot(vl, vr, t0, tf, dt)
         x(i) = x(i-1) + V(i)*cos(th(i))*dt;
         y(i) = y(i-1) + V(i)*sin(th(i))*dt;
         th(i) = th(i-1) + w(i)*dt;
-        pause(dt);
     end
     
-    figure;
-    plot(x, y);
+    % figure;
+    % plot(x, y);
     
 end
