@@ -2,10 +2,10 @@ close all;
 clear all;
 clc;
 
-%robot = raspbot();
+robot = raspbot();
 %robot.encoders.NewMessageFcn=@encoderEventListener;
-%robot.sendVelocity(0, 0);
-pause(0.05);
+robot.sendVelocity(0, 0);
+%pause(0.05);
 
 %leftStart = robot.encoders.LatestMessage.Vector.X;
 %rightStart = robot.encoders.LatestMessage.Vector.Y;
@@ -42,6 +42,7 @@ Y = zeros(1);
 TH = zeros(1);
 
 DT = zeros(1);
+correction = 0.005;
 
 myPlot = plot(X, Y, 'b-');
 xlim([-0.5 0.5]);
@@ -52,9 +53,9 @@ dt = 0.005;
 tic;
 T = toc;
 ptoc = T;
-while(T < Tf)
+while(T < 1.09*Tf)
     
-    %robot.sendVelocity(vl(i), vr(i));
+    
     %[x, y, th] = modelDiffSteerRobot(vl(i)*1000, vr(i)*1000, t(i, tf, notDt);
     %V(i) = ds/dt;
     %t(i) = timestamp - iTime;
@@ -67,15 +68,28 @@ while(T < Tf)
     s(i) = v*t;
     kappa(i) = (kk/ks)*sin(kth*s(i));
     omega(i) = kappa(i)*v;
-    vr(i) = v + W/2*omega(i);
-    vl(i) = v - W/2*omega(i);
+    if (T < 0.5*Tf) || (T > Tf)
+        correction = 0.003;
+    else
+        correction = -0.003;
+    end
+    vr(i) = v + W/2*omega(i) + 1/2*correction;
+    vl(i) = v - W/2*omega(i) - 1/2*correction;
+    robot.sendVelocity(vl(i), vr(i));
+    pause(0.05);
+    
     %[X, Y, TH] = modelDiffSteerRobot(vl, vr, 0, T, dt);
     [X, Y, TH] = modelDiffSteerRobot(vl, vr, 0, T, DT);
     set(myPlot, 'xdata', X, 'ydata', Y);
     
-    pause(0.001)
+    
     ptoc = T;
     i = i + 1;
 end
 
-%robot.stop();
+%for i = 1:32
+%    robot.sendVelocity(vl(i), vr(i));
+%    pause(0.05);
+%end
+
+robot.stop();
