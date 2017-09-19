@@ -51,7 +51,7 @@ VL = zeros(1);
 VR = zeros(1);
 
 DT = zeros(1);
-error = 0.003;
+error = 0;%0.001;
 
 
 encI = 1;
@@ -59,16 +59,17 @@ v_left = zeros(1);
 v_right = zeros(1);
 encDT = zeros(1);
 i = 2;
-tic;
-T = toc;
+timer = tic;
+T = toc(timer);
 ptoc = T;
-while(T < 1.09*Tf)
+Tstop = 1*Tf;
+while(T < Tstop)
     %[x, y, th] = modelDiffSteerRobot(vl(i)*1000, vr(i)*1000, t(i, tf, notDt);
     %V(i) = ds/dt;
     %t(i) = timestamp - iTime;
     %plot(t, V);
     %ylim([0 0.1]);
-    T = toc;
+    T = toc(timer);
     DT(i) = T - ptoc;
     %ks = (T - ptoc) / dt;
     t = T/ks;

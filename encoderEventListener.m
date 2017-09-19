@@ -24,8 +24,8 @@ v_right(encI) = ds_right/dt;
 
 [X_R, Y_R, TH_R] = modelDiffSteerRobot(v_left, v_right, 0, 10, encDT);
 plot(X_R, Y_R);
-xlim([-1 0.5]);
-ylim([-0.5 0.5]);
+%xlim([-1 0.5]);
+%ylim([-0.5 0.5]);
 title('Location of Robot');
 xlabel('X Position');
 ylabel('Y Position');
