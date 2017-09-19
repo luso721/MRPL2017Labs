@@ -33,18 +33,25 @@ kappa = zeros(1);
 omega = zeros(1);
 vr = zeros(1);
 vl = zeros(1);
-W = 0.08;
+W = 0.09;
+global X;
+global Y;
+global TH;
 X = zeros(1);
 Y = zeros(1);
+TH = zeros(1);
+
+DT = zeros(1);
 
 myPlot = plot(X, Y, 'b-');
-%xlim([-0.5 0.5]);
-%ylim([-0.5 0.5]);
+xlim([-0.5 0.5]);
+ylim([-0.5 0.5]);
 
-i = 1;
-dt = 0.0016;
+i = 2;
+dt = 0.005;
 tic;
 T = toc;
+ptoc = T;
 while(T < Tf)
     
     %robot.sendVelocity(vl(i), vr(i));
@@ -54,6 +61,7 @@ while(T < Tf)
     %plot(t, V);
     %ylim([0 0.1]);
     T = toc;
+    DT(i) = T - ptoc;
     %ks = (T - ptoc) / dt;
     t = T/ks;
     s(i) = v*t;
@@ -61,11 +69,12 @@ while(T < Tf)
     omega(i) = kappa(i)*v;
     vr(i) = v + W/2*omega(i);
     vl(i) = v - W/2*omega(i);
-    [X, Y, TH] = modelDiffSteerRobot(vl, vr, 0, T, dt);
-    
+    %[X, Y, TH] = modelDiffSteerRobot(vl, vr, 0, T, dt);
+    [X, Y, TH] = modelDiffSteerRobot(vl, vr, 0, T, DT);
     set(myPlot, 'xdata', X, 'ydata', Y);
     
-    pause(dt)
+    pause(0.001)
+    ptoc = T;
     i = i + 1;
 end
 
