@@ -1,0 +1,54 @@
+close all;
+clear all;
+clc;
+
+robot = raspbot();
+robot.encoders.NewMessageFcn=@encoderEventListener;
+robot.sendVelocity(0, 0);
+pause(0.05);
+
+% Set starting values and PID constants
+leftStart = robot.encoders.LatestMessage.Vector.X;
+rightStart = robot.encoders.LatestMessage.Vector.Y;
+x_goal = 0.1;
+Kp = 10.0;
+Kd = 0.0;
+Ki = 0.0;
+x = 0;
+error = x_goal - x;
+error_prev = error;
+i_error = 0;
+maxI_error = 1;
+tolerance = 0.0001;
+timeLimit = 6;
+dt = 0.05;
+
+% Begin timer
+timer = tic;
+T = toc(timer);
+T_prev = T;
+
+% Stop when tolerance or time limit is reached
+while((abs(error) >= tolerance) && (T < timeLimit))
+    leftEncoder = robot.encoders.LatestMessage.Vector.X;
+    rightEncoder = robot.encoders.LatestMessage.Vector.Y;
+    
+    % Find current position and errors
+    x = mean([leftEncoder-leftStart, rightEncoder-rightStart]);
+    error = x_goal - x;
+    d_error = (error - error_prev) / dt;
+    i_error = i_error + error * dt;
+    
+    % Clamp i_error
+    sign = sign(i_error);
+    i_error = sign * min([abs(i_error), maxI_error]);
+    
+    % Update time and previous values;
+    error_prev = error;
+    T_prev = T;
+    T = toc(timer);
+    pause(dt);
+end
+
+robot.encoders.NewMessageFcn=[];
+robot.stop();
