@@ -13,17 +13,12 @@ if (t < t_ramp)
     uref = amax*t;
 
 elseif ((t_f - t) < t_ramp)
-    uref = -1*amax*(t_f-t);
+    %sgn accounts for dicrection of accelration
+    uref = 1*amax*(t_f-t);
 
 elseif ((t_ramp) < t && (t < t_f - t_ramp))
     uref = vmax;
-
-elseif (t < 0)
-    uref = 0;
-
-elseif (s_f < 0)
-    uref = uref * -1;
-
+    
 else 
     uref = 0;
 end
