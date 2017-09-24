@@ -73,6 +73,11 @@ robot.stop();
 %% Code for Simulation/Feedforward Control on Robot/ChallengeTask
 % simulates the ramp function (3.32)
 
+
+close all;
+clear all;
+clc;
+
 global dsleft
 global dsright
 
@@ -90,6 +95,12 @@ goal_dist = 1; %meters
 current_dist = 0;
 err = goal_dist - current_dist;
 
+%PID parameters
+Kp = 5.5;
+Kd = 0.5;
+Ki = 0.7;
+maxI_error = 0.5;
+
 leftEncoderSim = 0;
 rightEncoderSim = 0;
 
@@ -99,7 +110,7 @@ T_prev = T;
 
 t_ramp = vmax/amax;
 time_limit = 5;
-t_f = (1 + (vmax^2/amax))/vmax;
+t_f = (goal_dist + (vmax^2/amax))/vmax;
 
 ref_dist = zeros(1);
 times = zeros(1);
@@ -108,14 +119,23 @@ velocities = zeros(1);
 
 index = 1;
 dist_prev = 0;
+error_prev = 0;
+i_error = 0;
 dt = .001;
 sgn = 1;
 
+figure(1);
+figure(2);
+
+ffw = 1;
+fbk = 1;
+
 %robot position and refrence position are out of phase by t = delay
 %so synchronize them. value determined experimentally 
-delay = .3;
+delay = 0.14;
 
-while(T < t_f )   
+while(T < t_f + 1)  
+    T = toc(timer);
     %compute distance travelled in simulation
     simulated_dist = mean([leftEncoderSim, rightEncoderSim]);
     
@@ -131,20 +151,41 @@ while(T < t_f )
     sgn = sign(-rob_dist + goal_dist);
     %move the robot
     times(index) = T;
-    v_ref = trapezoidalVelocityProfile(T, amax, vmax, goal_dist, sgn);
-    
-    v_delay = trapezoidalVelocityProfile(T-delay, amax, vmax, goal_dist, sgn);
+    if (T < t_f)
+        v_ref = trapezoidalVelocityProfile(T, amax, vmax, goal_dist, sgn);
+    else
+        v_ref = 0;
+    end
+    if (T < t_f + delay)
+        v_delay = trapezoidalVelocityProfile(T-delay, amax, vmax, goal_dist, sgn);
+    else
+        v_delay = 0;
+    end
     
     %integrate
-    if (T > delay)
-       dist_travelled = dist_prev + v_delay * (T - T_prev);
-    
+    if (T < delay)
+       dist_travelled = dist_prev + 0 * (T - T_prev);
     else
-        dist_travelled = dist_prev + 0 * (T - T_prev);
+       dist_travelled = dist_prev + v_delay * (T - T_prev);
     end
+    
+    % Calculate feedback
+    error = dist_travelled - rob_dist;
+    
+    d_error = (error - error_prev) / (T - T_prev);
+    i_error = i_error + error * (T - T_prev);
+    
+    i_error = sign(i_error) * min([abs(i_error), maxI_error]);
+    
+    v_pid = Kp*error + Kd*d_error + Ki*i_error;
+    
+    % Get final velocity
+    v = ffw*v_ref + fbk*v_pid;
+    v = sign(v) * min([abs(v), vmax]);
     
     %assign previous distances and array indices
     dist_prev = dist_travelled;
+    error_prev = error;
     ref_dist(index) = dist_travelled;
     actual_dist(index) = rob_dist;
     velocities(index) = v_ref;
@@ -152,35 +193,28 @@ while(T < t_f )
     leftEncoderSim = leftEncoderSim + v_ref*dt;
     rightEncoderSim = rightEncoderSim + v_ref*dt;
     
-    robot.sendVelocity(v_ref, v_ref);
+    robot.sendVelocity(v, v);
     
     index = index + 1;
     T_prev = T;
-    T = toc(timer);
     pause(dt);
     
-    plot(times, velocities, times, ref_dist, times, actual_dist)
+    figure(1);
+    plot(times, ref_dist, times, actual_dist);
+    figure(2);
+    plot(times, ref_dist - actual_dist );
 end
+
+robot.stop();
+disp(error(end));
 
 %plot(times, velocities);
 %plot(times, actual_dist);
 %plot(times, velocities, times, ref_dist, times, actual_dist)
-xlabel('time (s)');
-ylabel('position (m)');
-legend('Velocity Profile', 'Synchronized Refrence Distance','Robot Distance');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+figure(1);
+xlabel('Time (s)');
+ylabel('Position (m)');
+legend('Location', 'NW', 'Synchronized Reference Distance','Robot Distance');
+figure(2);
+xlabel('Time (s)');
+ylabel('Error (m)');
