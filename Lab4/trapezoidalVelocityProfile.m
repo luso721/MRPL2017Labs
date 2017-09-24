@@ -2,30 +2,30 @@ function uref = trapezoidalVelocityProfile(t , amax, vmax, dist, sgn)
 %uref Return the velocity command of a trapezoidal profile.
 % Returns the velocity command of a trapezoidal profile of maximum
 % acceleration amax and maximum velocity vmax whose ramps are of
-% duration tf. Sgn is the sign of the desired velocities.
+% duf_ration tf. Sgn is the sign of the desired velocities.
 % Returns 0 if t is negative.  
 
 s_f = dist;
 t_ramp = vmax/amax;
-t_f = (s_f/vmax) + t_ramp;
+t_f = (s_f + (vmax^2/amax))/vmax;
 
 if (t < t_ramp)
     uref = amax*t;
 
-if ((t_f - t) < t_ramp)
-    uref = -1*amax*(t_f -t);
-end
+elseif ((t_f - t) < t_ramp)
+    uref = -1*amax*(t_f-t);
 
-if ((t_ramp) < t && (t < t_f - t_ramp))
+elseif ((t_ramp) < t && (t < t_f - t_ramp))
     uref = vmax;
-end
 
-if (t < 0)
+elseif (t < 0)
     uref = 0;
-end
 
-if (s_f < 0)
+elseif (s_f < 0)
     uref = uref * -1;
+
+else 
+    uref = 0;
 end
 
 uref = sgn*uref;
