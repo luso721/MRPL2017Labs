@@ -95,11 +95,12 @@ goal_dist = 1; %meters
 current_dist = 0;
 err = goal_dist - current_dist;
 
-%PID parameters
-Kp = 5.5;
-Kd = 0.5;
-Ki = 0.7;
-maxI_error = 0.5;
+%PID parameters/Good values for robot 5
+Kp = 7.8;%7.8;
+Kd = 0.15;%0.15;
+Ki = 0.05;%0.05;
+maxI_error = 0.05;%0.05;
+encTuner = 0.9908;%0.9808;
 
 leftEncoderSim = 0;
 rightEncoderSim = 0;
@@ -121,18 +122,18 @@ index = 1;
 dist_prev = 0;
 error_prev = 0;
 i_error = 0;
-dt = .001;
+dt = .02;
 sgn = 1;
+t_f = t_f - 0.117;
 
 figure(1);
 figure(2);
 
-ffw = 1;
 fbk = 1;
 
 %robot position and refrence position are out of phase by t = delay
 %so synchronize them. value determined experimentally 
-delay = 0.14;
+delay = 0.06;
 
 while(T < t_f + 1)  
     T = toc(timer);
@@ -142,7 +143,7 @@ while(T < t_f + 1)
     %compute distance travelled by robot
     leftEncoder = robot.encoders.LatestMessage.Vector.X;
     rightEncoder = robot.encoders.LatestMessage.Vector.Y;
-    rob_dist = mean([leftEncoder-leftStart, rightEncoder - rightStart]);
+    rob_dist = encTuner * mean([leftEncoder-leftStart, rightEncoder - rightStart]);
     
     %feedforward error will be difference of simulated distance and 
     %traveled distance (not done yet)
@@ -151,7 +152,7 @@ while(T < t_f + 1)
     sgn = sign(-rob_dist + goal_dist);
     %move the robot
     times(index) = T;
-    if (T < t_f)
+    if (T < t_f - dt)
         v_ref = trapezoidalVelocityProfile(T, amax, vmax, goal_dist, sgn);
     else
         v_ref = 0;
@@ -180,7 +181,7 @@ while(T < t_f + 1)
     v_pid = Kp*error + Kd*d_error + Ki*i_error;
     
     % Get final velocity
-    v = ffw*v_ref + fbk*v_pid;
+    v = v_ref + fbk*v_pid;
     v = sign(v) * min([abs(v), vmax]);
     
     %assign previous distances and array indices
@@ -202,11 +203,11 @@ while(T < t_f + 1)
     figure(1);
     plot(times, ref_dist, times, actual_dist);
     figure(2);
-    plot(times, ref_dist - actual_dist );
+    plot(times, actual_dist - ref_dist);
 end
 
 robot.stop();
-disp(error(end));
+disp(-1*error(end));
 
 %plot(times, velocities);
 %plot(times, actual_dist);
