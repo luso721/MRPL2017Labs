@@ -9,9 +9,12 @@ s_f = dist;
 t_ramp = vmax/amax;
 t_f = (s_f + (vmax^2/amax))/vmax;
 
-if (t < t_ramp)
+if (t < 0)
+    uref = 0;
+elseif (t < t_ramp)
     uref = amax*t;
-
+elseif (t > t_f)
+    uref = 0;
 elseif ((t_f - t) < t_ramp)
     %sgn accounts for dicrection of accelration
     uref = 1*amax*(t_f-t);
@@ -24,6 +27,3 @@ else
 end
 
 uref = sgn*uref;
-
-    
-
