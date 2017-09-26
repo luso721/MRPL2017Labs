@@ -118,18 +118,18 @@ t_f = t_f - 0.117;
 figure(1);
 figure(2);
 
-fbk = 1;
+fbk = 0;
 
 %PID parameters/Good values for robot 5
-Kp = 8.4;%7.8;
-Kd = 0.0;%0.15;
-Ki = 0.0;%0.05;
-maxI_error = 0.05;%0.05;
-encTuner = 0.9785;%0.9908;
+Kp = 7.2;%7.8;  %7.2
+Kd = 0.15;%0.15;
+Ki = 0.05;%0.05;    %0.05
+maxI_error = 0.5;%0.05;
+encTuner = 0.9765;%0.9908;
 
 %robot position and refrence position are out of phase by t = delay
 %so synchronize them. value determined experimentally 
-delay = 0.33; % 0.3 good
+delay = 0.25; % 0.3 good
 
 timer = tic;
 T = toc(timer);
