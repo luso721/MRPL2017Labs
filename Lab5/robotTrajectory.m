@@ -14,11 +14,6 @@ classdef robotTrajectory < handle
         V;
         w;
         numSamples;
-        
-        time_samples;
-        distance_samples;
-        velocity_samples;
-        pose_samples;
     end
     
     methods
@@ -86,6 +81,34 @@ classdef robotTrajectory < handle
                 thq = interp1(T, TH, tq);
                 
                 pose = [xq(2), yq(2), thq(2)];
+            end
+        end
+        
+        function [V, w] = getVwAtTime(obj, time)
+            index = time / obj.dt;
+            if (index > size(obj.t, 2))
+                V = 0;
+                w = 0;
+            elseif (index <= 0)
+                V = 0;
+                w = 0;
+            elseif (rem(index, 1) == 0)
+                V = obj.V(index);
+                w = obj.w(index);
+            else
+                a = floor(index) + 1;
+                b = ceil(index) + 1;
+                
+                tq = [obj.t(a), time, obj.t(b)];
+                T = [obj.t(a), obj.t(b)];
+                Vsample = [obj.V(a), obj.V(b)];
+                wsample = [obj.w(a), obj.w(b)];
+                
+                Vq = interp1(T, Vsample, tq);
+                wq = interp1(T, wsample, tq);
+                
+                V = Vq(2);
+                w = wq(2);
             end
         end
     end

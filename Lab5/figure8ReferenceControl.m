@@ -1,6 +1,6 @@
 classdef figure8ReferenceControl < handle 
     
-    properties (Access = private)
+    properties (Access = public)
        t_f;
        k_theta;
        k_k;
