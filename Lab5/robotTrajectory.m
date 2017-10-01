@@ -67,16 +67,23 @@ classdef robotTrajectory < handle
             index = time / obj.dt;
             if (index > size(obj.t, 2))
                 pose = obj.p(end, 1:3);
+            elseif (index <= 0)
+                pose = obj.p(1, 1:3);
             elseif (rem(index, 1) == 0)
                 pose = obj.p(index, 1:3);
             else
-                a = floor(index);
-                b = ceil(index);
+                a = floor(index) + 1;
+                b = ceil(index) + 1;
                 
                 tq = [obj.t(a), time, obj.t(b)];
-                xq = interp1(t, x, tq);
-                yq = interp1(t, y, tq);
-                thq = interp1(t, th, tq);
+                T = [obj.t(a), obj.t(b)];
+                X = [obj.x(a), obj.x(b)];
+                Y = [obj.y(a), obj.y(b)];
+                TH = [obj.th(a), obj.th(b)];
+                
+                xq = interp1(T, X, tq);
+                yq = interp1(T, Y, tq);
+                thq = interp1(T, TH, tq);
                 
                 pose = [xq(2), yq(2), thq(2)];
             end

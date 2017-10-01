@@ -25,8 +25,8 @@ classdef figure8ReferenceControl < handle
             obj.t_f = s_f/v;
             obj.k_theta = 2*pi/s_f;
             obj.k_k = 15.1084;
-            obj.T_f = (Ks/Kv)*(s_f/v);
-            obj.v = 0.2;
+            obj.T_f = (Ks/Kv)*obj.t_f;
+            obj.v = v;
             obj.k_s = Ks;
             obj.k_v = Kv;
             obj.t_pause = tPause;
@@ -45,14 +45,14 @@ classdef figure8ReferenceControl < handle
             %pause, publish zero velocity. Otherwise, by elimniation, timeNow
             %must be during the trajectory time. 
             if (timeNow < 0 || (0 < timeNow && timeNow < obj.t_pause) ...
-                || (obj.T_f < timeNow && timeNow < obj.T_f + obj.t_pause)...
+                || (obj.T_f + obj.t_pause < timeNow && timeNow < obj.T_f + obj.t_pause)...
                 || (obj.T_f + (2*obj.t_pause) < timeNow))
                 V = 0;
                 w = 0;
                 return;
             end
             
-            t = (obj.k_s/obj.k_v)*(timeNow); %would be timeNow - (our delay). 
+            t = (obj.k_v/obj.k_s)*(timeNow-obj.t_pause); %would be timeNow - (our delay). 
             s = obj.v*t;
             kappa = (obj.k_k/obj.k_s)*sin(obj.k_theta * s);
             V = obj.k_v*obj.v;
