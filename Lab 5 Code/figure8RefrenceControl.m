@@ -1,4 +1,4 @@
-classdef figure8RefrenceControl < handle
+classdef figure8RefrenceControl < handle 
     
     properties (Access = private)
        t_f;
@@ -52,42 +52,11 @@ classdef figure8RefrenceControl < handle
                 return;
             end
             
-            %loop_pause = .05;
-            first_iteration = false;
-            index = 1;
-            while(true)
-                if (first_iteration == false)
-                    start_tic = tic();
-                    
-                    %time at the start of the first iteration
-                    start_time = toc(start_tic); 
-                    first_iteration = true;
-                end
-            
-                current_time = toc(start_tic);
-                T = current_time;
-                
-                dt = current_time - start_time; 
-                
-                if(dt > timeNow)
-                    break;
-                end
-            
-                %convert to unscaled time. 
-                t = (obj.k_s/obj.k_v)*(T);
-            
-                %compute the trajectory
-                s = obj.v*t;
-                kappa = (obj.k_k/obj.k_s)*sin(obj.k_theta * s);
-                V = obj.k_v*obj.v;
-                omega = kappa*V;
-                       
-                % compute total elapsed time
-                
-                %pause(loop_pause);
-                index = index + 1;
-            end 
-            w = omega;
+            t = (obj.k_s/obj.k_v)*(timeNow); %would be timeNow - (our delay). 
+            s = obj.v*t;
+            kappa = (obj.k_k/obj.k_s)*sin(obj.k_theta * s);
+            V = obj.k_v*obj.v;
+            w = kappa*V;
         end
         
         
