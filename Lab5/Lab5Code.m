@@ -42,7 +42,7 @@ firstIteration = false;
 T = 0;
 i = 1;
 encI = 1;
-delay = 2.8;
+delay = 0.5;
 
 while (T < ref.T_f + 2*ref.t_pause + delay)
     if (firstIteration == false)
@@ -52,10 +52,10 @@ while (T < ref.T_f + 2*ref.t_pause + delay)
         continue;
     end
     T = toc(timer);
-    [vl, vr] = getvlvrAtTime(signal, robotModel, traj, T-delay);
+    [vl, vr] = getvlvrAtTime(signal, robotModel, traj, T);
     robot.sendVelocity(vl, vr);
-    pose = getPoseAtTime(traj, T);
-    t(i) = T+delay;
+    pose = getPoseAtTime(traj, T-delay);
+    t(i) = T;
     x(i) = pose(1);
     y(i) = pose(2);
     th(i) = pose(3);
@@ -73,7 +73,7 @@ while (T < ref.T_f + 2*ref.t_pause + delay)
     hold off;
     
     i = i + 1;
-    pause(0.02);
+    pause(0.05);
 end
 
 robot.stop();
