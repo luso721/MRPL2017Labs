@@ -18,7 +18,7 @@ classdef trapReferenceControl < handle
         
         function V_ref = computeControl(obj, time_now)
             
-            if (time_now < 0)
+            if (time_now <= 0)
                 V_ref = 0;
                 return 
             

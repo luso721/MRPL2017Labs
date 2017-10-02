@@ -9,7 +9,6 @@ robot.sendVelocity(0, 0);
 pause(0.05);
 
 global encI;
-global encDT;
 global T_R;
 global X_R;
 global Y_R;
@@ -37,13 +36,15 @@ signal = trajectoryFollower(robotModel, traj);
 x = zeros(1);
 y = zeros(1);
 figure(1);
+figure(2);
 
 firstIteration = false;
 T = 0;
 i = 1;
 encI = 1;
+delay = 2.8;
 
-while (T < ref.T_f + 2*ref.t_pause)
+while (T < ref.T_f + 2*ref.t_pause + delay)
     if (firstIteration == false)
         timer = tic;
         encI = 1;
@@ -51,13 +52,21 @@ while (T < ref.T_f + 2*ref.t_pause)
         continue;
     end
     T = toc(timer);
-    [vl, vr] = getvlvrAtTime(signal, robotModel, traj, T);
+    [vl, vr] = getvlvrAtTime(signal, robotModel, traj, T-delay);
     robot.sendVelocity(vl, vr);
     pose = getPoseAtTime(traj, T);
+    t(i) = T+delay;
     x(i) = pose(1);
     y(i) = pose(2);
+    th(i) = pose(3);
     
     figure(1);
+    hold on;
+    plot(t, x, '-b', T_R, X_R, '-r');
+    plot(t, y, '--b', T_R, Y_R, '--r');
+    plot(t, th, ':b', T_R, TH_R, ':r');
+    hold off;
+    figure(2);
     hold on;
     plot(x, y, '-b');
     plot(X_R, Y_R, '-r');
@@ -71,6 +80,12 @@ robot.stop();
 robot.encoders.NewMessageFcn=[];
 
 figure(1);
+title('Position vs Time');
+xlabel('Time (s)');
+ylabel('Position');
+legend('Location', 'NE', 'X Simulation', 'X Encoder Data', 'Y Simulation', ...
+    'Y Encoder Data', 'Theta Simulation', 'Theta Encoder Data');
+figure(2);
 title('Location of Robot');
 xlabel('X Position (m)');
 ylabel('Y Position (m)');
