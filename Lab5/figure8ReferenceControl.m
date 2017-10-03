@@ -44,15 +44,14 @@ classdef figure8ReferenceControl < handle
             %publish zero velocity. (3) If time is during final terminal  
             %pause, publish zero velocity. Otherwise, by elimniation, timeNow
             %must be during the trajectory time. 
-            if (timeNow <= 0 || (0 < timeNow && timeNow < obj.t_pause) ...
-                || (obj.T_f + obj.t_pause < timeNow && timeNow < obj.T_f + obj.t_pause)...
-                || (obj.T_f + (2*obj.t_pause) < timeNow))
+            if (timeNow < obj.t_pause) ...
+                || (obj.T_f + obj.t_pause < timeNow)
                 V = 0;
                 w = 0;
                 return;
             end
             
-            t = (obj.k_v/obj.k_s)*(timeNow-obj.t_pause); %would be timeNow - (our delay). 
+            t = (obj.k_v/obj.k_s)*(timeNow - obj.t_pause); %would be timeNow - (our delay). 
             s = obj.v*t;
             kappa = (obj.k_k/obj.k_s)*sin(obj.k_theta * s);
             V = obj.k_v*obj.v;

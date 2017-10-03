@@ -32,11 +32,11 @@ dt = timestamp - timePrev;
 encDT(encI) = dt;
 T_R(encI) = timestamp - startTime;
 VL = ds_left/dt;
-VR = ds_left/dt;
+VR = ds_right/dt;
 v_left(encI) = ds_left/dt;
 v_right(encI) = ds_right/dt;
 
-[X_R, Y_R, TH_R] = modelDiffSteerRobot(v_left, v_right, 0, 10, encDT);
+[X_R, Y_R, TH_R] = modelDiffSteerRobot(v_left, v_right, encDT);
 %plot(X_R, Y_R);
 %xlim([-1 0.5]);
 %ylim([-0.5 0.5]);

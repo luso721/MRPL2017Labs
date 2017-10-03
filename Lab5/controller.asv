@@ -20,7 +20,7 @@ classdef controller < handle
         function obj = controller(rob_pose, ref_pose, V)
             %control parameters
             %disp(V)
-            obj.tau = 1.2;
+            obj.tau = 120;
             obj.k_x = 1/obj.tau;
             %obj.k_y = 2/(obj.tau^2*abs(V));
             if (abs(V) < .01)
@@ -62,8 +62,7 @@ classdef controller < handle
             [err_r, e_theta] = computeError(obj);
             
             u_p = [obj.k_x 0; 0 obj.k_y]*err_r;
-            %u_p(1) = obj.k_y*err_r(2);
-            %u_p(2) = obj.k_x*err_r(1) + obj.k_theta*e_theta;
+            u_p(1) = obj.k_y*err_r(1);
             u_p(2) = u_p(2) + (obj.k_theta*e_theta);
             u_v = u_p(1);
             u_w = u_p(2);
