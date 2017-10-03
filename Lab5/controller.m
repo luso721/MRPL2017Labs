@@ -2,14 +2,15 @@
 % 1 function. V would be the velocity of the robot currently. 
 function [V, w] = controller(rob_pose, ref_pose, V)
    %control parameters
-   tau = 100;
+   %disp(V)
+   tau = 120;
    k_x = 1/tau;
-   
-   if (abs(V) < .01)
-       k_y = 0;
-   else 
-       k_y = 2/(tau^2*abs(V));
-   end
+   k_y = 1/(tau^2*.8);
+   %if (abs(V) <k .01)
+   %    k_y = 0;
+   %else 
+   %    k_y = 2./(tau^2*abs(V));
+   %end
    
    k_theta = 1/tau;
    

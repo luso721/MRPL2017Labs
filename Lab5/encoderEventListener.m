@@ -12,6 +12,8 @@ global timePrev;
 global startTime;
 global v_left;
 global v_right;
+global VL;
+global VR;
 
 left = event.Vector.X;
 right = event.Vector.Y;
@@ -29,6 +31,8 @@ ds_right = right - rightPrev;
 dt = timestamp - timePrev;
 encDT(encI) = dt;
 T_R(encI) = timestamp - startTime;
+VL = ds_left/dt;
+VR = ds_left/dt;
 v_left(encI) = ds_left/dt;
 v_right(encI) = ds_right/dt;
 

@@ -17,6 +17,8 @@ global leftPrev;
 global rightPrev;
 global timePrev;
 global startTime;
+global VL;
+global VR;
 
 leftPrev = robot.encoders.LatestMessage.Vector.X;
 rightPrev = robot.encoders.LatestMessage.Vector.Y;
@@ -42,9 +44,12 @@ firstIteration = false;
 T = 0;
 i = 1;
 encI = 1;
-delay = 0.5;
+delay = 0.7;
 
-while (T < ref.T_f + 2*ref.t_pause + delay)
+ffw = 1;
+fbk = 1;
+
+while (T < getTrajectoryDuration(ref)+delay)
     if (firstIteration == false)
         timer = tic;
         encI = 1;
@@ -52,13 +57,34 @@ while (T < ref.T_f + 2*ref.t_pause + delay)
         continue;
     end
     T = toc(timer);
-    [vl, vr] = getvlvrAtTime(signal, robotModel, traj, T);
-    robot.sendVelocity(vl, vr);
-    pose = getPoseAtTime(traj, T-delay);
+    %[vl, vr] = getvlvrAtTime(signal, robotModel, traj, T);
+    %robot.sendVelocity(vl, vr);
+    ref_pose = getPoseAtTime(traj, T-delay);
     t(i) = T;
-    x(i) = pose(1);
-    y(i) = pose(2);
-    th(i) = pose(3);
+    x(i) = ref_pose(1);
+    y(i) = ref_pose(2);
+    th(i) = ref_pose(3);
+    
+    %robot pose
+    x_rob = X_R(i);
+    y_rob = Y_R(i);
+    th_rob = TH_R(i);
+    rob_pose = [x_rob; y_rob; th_rob];
+    [V_rob, w_rob] = robotModel.vlvrToVw(VL, VR);
+    disp(V_rob)
+    
+    %compute feedforward velocities
+    [vl, vr] = getvlvrAtTime(signal, robotModel, traj, T);
+    
+    %compute feedback velocities
+    [V_fdbk, w_fdbk] = controller(rob_pose, ref_pose, V_rob);
+    [vl_fdbk, vr_fdbk] = robotModel.VwTovlvr(V_fdbk, w_fdbk);
+    
+    %apply corrected velocity to robot
+    vl_tot = ffw*(vl) + fbk*(vl_fdbk);
+    vr_tot = ffw*(vr) + fbk*(vr_fdbk);
+    
+    robot.sendVelocity(vl_tot, vr_tot);
     
     figure(1);
     hold on;
