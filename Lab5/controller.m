@@ -20,7 +20,7 @@ classdef controller < handle
         function obj = controller(rob_pose, ref_pose, V)
             %control parameters
             %disp(V)
-            obj.tau = 1.2;
+            obj.tau = 1.0;
             obj.k_x = 1/obj.tau;
             %obj.k_y = 2/(obj.tau^2*abs(V));
             if (abs(V) < .01)

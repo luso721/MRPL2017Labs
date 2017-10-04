@@ -50,7 +50,7 @@ firstIteration = false;
 T = 0;
 i = 1;
 encI = 1;
-delay = 0.15;
+delay = 0.3;
 
 ffw = 1;
 fbk = 1;
@@ -99,14 +99,31 @@ while (T < getTrajectoryDuration(ref)+delay+1)
     vl_tot = ffw*(vl) + fbk*(vl_fdbk);
     vr_tot = ffw*(vr) + fbk*(vr_fdbk);
     
+    if ((vl_tot < 0) || (vl_tot >= 0))
+    else
+        vl_tot = 0;
+    end
+    if ((vr_tot < 0) || (vr_tot >= 0))
+    else
+        vr_tot = 0;
+    end
+    
     robot.sendVelocity(vl_tot, vr_tot);
     
+    i = i + 1;
+    pause(0.05);
+end
+
+robot.stop();
+robot.encoders.NewMessageFcn=[];
+
+
     figure(1);
     hold on;
-    yyaxis left
+    %yyaxis left
     plot(t, x, '-b', T_R, X_R, '-r');
     plot(t, y, '--b', T_R, Y_R, '--r');
-    yyaxis right
+    %yyaxis right
     plot(t, th, ':b', T_R, TH_R, ':r');
     hold off;
     figure(2);
@@ -116,27 +133,21 @@ while (T < getTrajectoryDuration(ref)+delay+1)
     hold off;
     figure(3);
     hold on;
-    yyaxis left
+    %yyaxis left
     plot(t, y_err, '-r');
     plot(t, x_err, '--r');
-    yyaxis right
+    %yyaxis right
     plot(t, th_err, ':r');
     hold off;
     
-    i = i + 1;
-    pause(0.08);
-end
-
-robot.stop();
-robot.encoders.NewMessageFcn=[];
 
 figure(1);
 title('Position vs Time');
 xlabel('Time (s)');
-yyaxis left
-ylabel('Position (m)');
-yyaxis right
-ylabel('Theta (rad)');
+%yyaxis left
+ylabel('Position');
+%yyaxis right
+%ylabel('Theta (rad)');
 legend('Location', 'NE', 'X Simulation', 'X Encoder Data', 'Y Simulation', ...
     'Y Encoder Data', 'Theta Simulation', 'Theta Encoder Data');
 figure(2);
@@ -147,8 +158,8 @@ legend('Location', 'NW', 'Simulation', 'Encoder Data');
 figure(3);
 title('Error');
 xlabel('Time (s)');
-yyaxis left
-ylabel('Error (m)');
-yyaxis right
-ylabel('Heading Error (rad)');
+%yyaxis left
+ylabel('Error');
+%yyaxis right
+%ylabel('Heading Error (rad)');
 legend('Location', 'NW', 'Crosstrack Error', 'Alongtrack Error', 'Heading Error');

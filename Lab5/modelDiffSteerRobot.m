@@ -2,7 +2,7 @@ function [x, y, th] = modelDiffSteerRobot(vl, vr, dt)
     
     %t = t0:dt:tf;
 
-    W = 0.088;
+    W = 0.089;
     V = (vr + vl) / 2;
     w = (vr - vl) / W;
     
